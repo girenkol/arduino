@@ -1,0 +1,103 @@
+#include <Timers.h>
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(2,3,4,5,6,7);
+
+int fotor = A1;
+int war_spr;
+int n=700;      //ustawia prog swiatla
+int licznik=0;
+int petla = 0;
+int t = 10000; //czas do obliczania czestotliwosci
+int r = 70; //promien w mm
+int v = 0;
+int f = 0;
+
+Timer czas;
+
+void setup() {
+  pinMode(13, OUTPUT);
+  Serial.begin(9600);
+  lcd.begin(16,2);
+  lcd.setCursor(0,0);
+  czas.begin(t);
+}
+
+int wypisz(int war){  
+  lcd.setCursor(0,1);
+  lcd.print(war);
+}
+
+int czekaj(int war, int war_spr){   
+  war = analogRead(fotor);
+  
+  lcd.setCursor(0,0);
+  lcd.print(war);
+  
+  Serial.print(war);
+  Serial.print("   ///    ");
+  Serial.println(licznik); 
+  if(war<war_spr)
+    return 0;
+  else
+    czekaj(war, war_spr);
+}
+
+void loop() { 
+  if(czas.available())
+  {
+     int f = licznik/(t/1000);
+     lcd.setCursor(5,1);
+     lcd.print("f=");
+     lcd.setCursor(7,1);
+     lcd.print(f);
+     
+     int v = 3.6*2*3.141592*r*licznik/t; // predkosc w kmh przy t w ms i r w mm
+     lcd.setCursor(9,1);
+     lcd.print("v=");
+     lcd.setCursor(11,1);
+     lcd.print(v);
+     
+     czas.restart();
+     licznik=0;
+      lcd.setCursor(11,0);
+      lcd.print("n=   ");
+      lcd.print(licznik);
+  }
+  
+  int war = analogRead(fotor);
+  
+  lcd.setCursor(0,0);
+  lcd.print(war);
+  
+  Serial.print(war);
+  Serial.print(" ///  ");
+  Serial.print(licznik); 
+  Serial.print(" ///  ");
+  Serial.print(v);
+  Serial.print(" ///  ");
+  Serial.println(f);  
+  if(war<n){
+    licznik++;
+    war_spr=war+10;
+    //czekaj(war, war_spr);
+
+    while(war<war_spr){
+      war = analogRead(fotor);
+    
+      lcd.setCursor(0,0);
+      lcd.print(war);
+  
+      Serial.print(war);
+      Serial.print("   ///    ");
+      Serial.println(licznik); 
+    }
+    
+    lcd.setCursor(11,0);
+    lcd.print("n=");
+    lcd.print(licznik);
+  }
+      
+  petla++;
+  if(petla%10==0)
+    wypisz(war);
+}
