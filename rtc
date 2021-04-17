@@ -1,0 +1,95 @@
+#include <virtuabotixRTC.h>
+#include <SPI.h>
+#include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+//#include <SD.h>
+
+Adafruit_SSD1306 display(-1);
+virtuabotixRTC myRTC(5, 6, 7);
+
+void setup()  {
+  Serial.begin(9600);
+  
+  // Set the current date, and time in the following format:
+  // seconds, minutes, hours, day of the week, day of the month, month, year
+  myRTC.setDS1302Time(3, 3, 3, 5, 26, 2, 2021);
+
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  display.clearDisplay();
+}
+
+void loop()  {
+
+  myRTC.updateTime();
+  
+  Serial.print("Current Date / Time: ");
+  Serial.print(myRTC.dayofmonth);
+  Serial.print("/");
+  Serial.print(myRTC.month);
+  Serial.print("/");
+  Serial.print(myRTC.year);
+  Serial.print(" ");
+  Serial.print(myRTC.hours);
+  Serial.print(":");
+  Serial.print(myRTC.minutes);
+  Serial.print(":");
+  Serial.println(myRTC.seconds);
+
+  display.clearDisplay();
+  display.setTextSize(0);
+  display.setTextColor(WHITE);
+  display.setCursor(0, 57);
+  //display.print("Current Date / Time: ");
+  //dni_tygodnia
+  if(myRTC.dayofweek==1)
+    display.print("PON");
+  if(myRTC.dayofweek==2)
+    display.print("WT ");
+  if(myRTC.dayofweek==3)
+    display.print("SR ");
+  if(myRTC.dayofweek==4)
+    display.print("CZW");
+  if(myRTC.dayofweek==5)
+    display.print("PT ");
+  if(myRTC.dayofweek==6)
+    display.print("SOB");
+  if(myRTC.dayofweek==7)
+    display.print("ND ");
+
+  //wyswietlanie daty i godziny na oled'zie
+  display.print(" ");
+
+  if(myRTC.dayofmonth<10)
+    display.print(" ");
+  display.print(myRTC.dayofmonth);  
+  display.print(".");
+  if(myRTC.month<10)
+    display.print(0);
+  display.print(myRTC.month);
+  
+  //display.print(".");
+  //display.print(myRTC.year);
+  display.print("  ");
+  
+  if(myRTC.hours<10)
+    display.print(" ");
+  display.print(myRTC.hours);
+  
+  display.print(":");
+
+  if(myRTC.minutes<10)
+    display.print(0);
+  display.print(myRTC.minutes);
+  
+  display.print(":");
+
+  if(myRTC.seconds<10)
+    display.print(0);
+  display.println(myRTC.seconds);
+  
+  display.display();
+  
+
+  delay(500); 
+}
